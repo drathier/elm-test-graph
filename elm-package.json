@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "Function chains for Elm Test",
-    "repository": "https://github.com/drathier/elm-test-chains.git",
+    "repository": "https://github.com/drathier/elm-test-graph.git",
     "license": "BSD-3-Clause",
     "source-directories": [
         ".",
