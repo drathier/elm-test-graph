@@ -1,10 +1,12 @@
 module Tests exposing (..)
 
+import Graph exposing (empty, insertEdge, insertNodeData)
+import Set
 import Test exposing (..)
 import Expect
 import Fuzz exposing (list, int, tuple, string)
 import String
-import Chain exposing (Action(Assert, Modify))
+import Test.Graph exposing (Action(Expect, Modify), fuzzGraph)
 import Shrink
 
 
@@ -12,12 +14,58 @@ all : Test
 all =
   describe "Sample Test Suite"
     [ describe "Unit test examples"
-        [ let
-            plan =
-              [ [ Assert (always Expect.pass) ], [ Modify identity, Modify identity ] ]
-          in
-            fuzz (Fuzz.custom (Chain.interleave plan) Shrink.noShrink) "Chain plan works" <|
-              \order ->
-                order |> Debug.log "order" |> always Expect.pass
+        [ fuzzGraph "Simple execution graph" 42 <|
+            (empty
+              |> insertNodeData 1 (Modify identity)
+              |> insertNodeData 2 (Expect (always Expect.pass))
+              |> insertNodeData 3 (Modify identity)
+              |> insertEdge ( 1, 2 )
+              |> insertEdge ( 1, 3 )
+            )
+        , fuzzGraph "Not all nodes need to have an Action" 42 <|
+            (empty
+              |> insertNodeData 1 (Modify identity)
+              |> insertNodeData 3 (Modify identity)
+              |> insertEdge ( 1, 2 )
+              |> insertEdge ( 1, 3 )
+            )
+        , fuzzGraph "Addition and Subtraction can be done in any order" 42 <|
+            (empty
+              |> insertNodeData 21 (Modify ((+) 2))
+              |> insertNodeData 22 (Modify ((+) -2))
+              |> insertNodeData 31 (Modify ((+) 3))
+              |> insertNodeData 32 (Modify ((+) -3))
+              |> insertNodeData 51 (Modify ((+) 5))
+              |> insertNodeData 52 (Modify ((+) -5))
+              |> insertNodeData 100 (Expect (Expect.equal 42))
+              |> insertEdge ( 21, 100 )
+              |> insertEdge ( 22, 100 )
+              |> insertEdge ( 31, 100 )
+              |> insertEdge ( 32, 100 )
+              |> insertEdge ( 51, 100 )
+              |> insertEdge ( 52, 100 )
+            )
+        , fuzzGraph "Inserting and deleting set elements can be done in almost any order" Set.empty <|
+            (empty
+              |> insertNodeData 11 (Modify <| Set.insert 1)
+              |> insertNodeData 12 (Expect <| (\set -> set |> Set.member 1 |> Expect.true "1 should be a member"))
+              |> insertNodeData 13 (Modify <| Set.remove 1)
+              |> insertEdge ( 11, 12 )
+              |> insertEdge ( 12, 13 )
+              |> insertNodeData 21 (Modify <| Set.insert 2)
+              |> insertNodeData 22 (Expect <| (\set -> set |> Set.member 2 |> Expect.true "2 should be a member"))
+              |> insertNodeData 23 (Modify <| Set.remove 2)
+              |> insertEdge ( 21, 22 )
+              |> insertEdge ( 22, 23 )
+              |> insertNodeData 31 (Modify <| Set.insert 3)
+              |> insertNodeData 32 (Expect <| (\set -> set |> Set.member 3 |> Expect.true "3 should be a member"))
+              |> insertNodeData 33 (Modify <| Set.remove 3)
+              |> insertEdge ( 31, 32 )
+              |> insertEdge ( 32, 33 )
+              |> insertEdge ( 13, 100 )
+              |> insertEdge ( 23, 100 )
+              |> insertEdge ( 33, 100 )
+              |> insertNodeData 100 (Expect (\set -> set |> Set.isEmpty |> Expect.true "expected set to be empty"))
+            )
         ]
     ]
