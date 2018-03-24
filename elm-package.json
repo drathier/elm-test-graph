@@ -1,5 +1,5 @@
 {
-    "version": "2.0.0",
+    "version": "2.0.1",
     "summary": "Function chains for Elm Test",
     "repository": "https://github.com/drathier/elm-test-graph.git",
     "license": "BSD-3-Clause",
