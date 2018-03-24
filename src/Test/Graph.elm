@@ -1,17 +1,20 @@
 module Test.Graph
   exposing
-    ( fuzzGraph
-    , Action(Expect, Modify)
+    ( Action(Expect, Modify)
     , ExecutionGraph
+    , fuzzGraph
     )
 
-{-|
-Execution graphs for [elm-test](/packages/elm-community/elm-test/latest). Define a graph of what operations happen and roughly in what order, and we'll generate total orderings from your graph, and execute them. Hopefully, we'll find some errors this way.
+{-| Execution graphs for [elm-test](/packages/elm-community/elm-test/latest). Define a graph of what operations happen and roughly in what order, and we'll generate total orderings from your graph, and execute them. Hopefully, we'll find some errors this way.
+
 
 # Fuzzers
+
 @docs fuzzGraph
 
+
 # Types
+
 @docs Action, ExecutionGraph
 
 -}
@@ -35,7 +38,7 @@ type Action a
 {-| A graph of `Action`s to be taken and the partial order to take them in. See [drathier/elm-graph](/packages/drathier/elm-graph/latest) for details on modifying the graph.
 -}
 type alias ExecutionGraph comparable a =
-  Graph comparable (Action a)
+  Graph comparable (Action a) ()
 
 
 type alias ExecutionOrdering comparable =
@@ -90,7 +93,6 @@ The graph above can be modeled using this code (which also has a bunch of expect
         |> insertNodeData 100 (Expect (\set -> set |> Set.isEmpty |> Expect.true "expected set to be empty"))
       )
 
-
 -}
 fuzzGraph : String -> a -> ExecutionGraph comparable a -> Test.Test
 fuzzGraph description a graph =
@@ -110,8 +112,9 @@ execute graph a keys =
           execute graph a otherKeys
 
         Just (Expect func) ->
-          if Expect.getFailure (func a) == Nothing then
+          if func a == Expect.pass then
             execute graph a otherKeys
+
           else
             func a
 
