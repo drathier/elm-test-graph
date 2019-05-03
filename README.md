@@ -1,2 +1,2 @@
 # elm-test-graph
-Execution graphs for [elm-test](/packages/elm-community/elm-test/latest). Define a graph of what operations happen and roughly in what order, and we'll generate total orderings from your graph, and execute them. Hopefully, we'll find some errors this way.
+Concurrency tests for [elm-test](/packages/elm-explorations/test/latest). Give us a graph of partially ordered operations and expectations, and we'll generate total orderings from your graph, and execute them as tests. Hopefully, we'll find some concurrency errors this way.

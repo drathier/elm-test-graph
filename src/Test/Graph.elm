@@ -1,6 +1,6 @@
 module Test.Graph
   exposing
-    ( Action(Expect, Modify)
+    ( Action(..)
     , ExecutionGraph
     , fuzzGraph
     )
@@ -23,8 +23,6 @@ import Expect
 import Fuzz
 import Graph exposing (Graph, getData)
 import Graph.Random
-import List.Extra
-import Random.Pcg as Random
 import Test
 
 
