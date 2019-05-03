@@ -41,7 +41,7 @@ type alias ExecutionOrdering comparable =
     List comparable
 
 
-{-| A fuzz test that uses an execution graph to define what it should do, and then randomizes execution order through the graph.
+{-| A fuzz test that uses a concurrent execution graph to define what it should do, and then randomizes execution order through the graph.
 
 For example, consider this execution graph:
 
@@ -69,24 +69,24 @@ The graph above can be modeled using this code (which also has a bunch of expect
     fuzzGraph "Inserting and deleting set elements can be done in almost any order" Set.empty <|
         (empty
             |> insertData 11 (Modify <| Set.insert 1)
-            |> insertData 12 (Expect <| \set -> set |> Set.member 1 |> Expect.true "1 should be a member")
+            |> insertData 12 (Expect <| \set -> set |> Set.member 1 |> Expect.equal True)
             |> insertData 13 (Modify <| Set.remove 1)
             |> insertEdge 11 12
             |> insertEdge 12 13
             |> insertData 21 (Modify <| Set.insert 2)
-            |> insertData 22 (Expect <| \set -> set |> Set.member 2 |> Expect.true "2 should be a member")
+            |> insertData 22 (Expect <| \set -> set |> Set.member 2 |> Expect.equal True)
             |> insertData 23 (Modify <| Set.remove 2)
             |> insertEdge 21 22
             |> insertEdge 22 23
             |> insertData 31 (Modify <| Set.insert 3)
-            |> insertData 32 (Expect <| \set -> set |> Set.member 3 |> Expect.true "3 should be a member")
+            |> insertData 32 (Expect <| \set -> set |> Set.member 3 |> Expect.equal True)
             |> insertData 33 (Modify <| Set.remove 3)
             |> insertEdge 31 32
             |> insertEdge 32 33
             |> insertEdge 13 100
             |> insertEdge 23 100
             |> insertEdge 33 100
-            |> insertData 100 (Expect (\set -> set |> Set.isEmpty |> Expect.true "expected set to be empty"))
+            |> insertData 100 (Expect <| \set -> set |> Set.isEmpty |> Expect.equal True)
         )
 
 -}
